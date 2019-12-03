@@ -70,4 +70,48 @@ updateN(CurrState, WeightMatrix, Alpha, N, ResultState) :-
     updateN(ResultState, WeightMatrix, Alpha, UpdatedN, ResultState).
 
 
+
+/* Returns weight matrix for only one stored state, used as a
+warmup for the next function */
+
+/* Add 1 to the value to Add */
+addN(ValueToAdd, Result) :-
+    Result is ValueToAdd + 1. 
+
+
+/* Helper function 1 */
+
+/* if AstateOrig == [], return [] */
+multiplyScalarOriginal([], _, _, _, []).
+
+/* If IndexToZeroOut == CurrentIndex, return 0.0 :: multiplyScalarOriginal */
+multiplyScalarOriginal([_|AstateOrig_T], ValueToMultiply, IndexToZeroOut, CurrentIndex, [Output_H|Output_T]) :-
+    IndexToZeroOut =:= CurrentIndex,
+    Output_H is 0.0,
+    addN(CurrentIndex, IncrementedCurrentIndex),
+    multiplyScalarOriginal(AstateOrig_T, ValueToMultiply, IndexToZeroOut, IncrementedCurrentIndex, Output_T).    
+
+multiplyScalarOriginal([AstateOrig_H|AstateOrig_T], ValueToMultiply, IndexToZeroOut, CurrentIndex, [Output_H|Output_T]) :-
+    Output_H is AstateOrig_H * ValueToMultiply,
+    addN(CurrentIndex, IncrementedCurrentIndex),
+    multiplyScalarOriginal(AstateOrig_T, ValueToMultiply, IndexToZeroOut, IncrementedCurrentIndex, Output_T).
+
+/* Helper function 2 */
+
+/* If valueToMultiply == [], return an empty list */
+multiplyScalarDuplicate(_, [], _, []). 
+
+multiplyScalarDuplicate(AstateOrig, [ValueToMultiply_H|ValueToMultiply_T], IndexToZeroOut, [Output_H|Output_T]) :-
+    multiplyScalarOriginal(AstateOrig, ValueToMultiply_H, IndexToZeroOut, 0, Output_H),
+    addN(IndexToZeroOut, IncrementedIndexToZeroOut),
+    multiplyScalarDuplicate(AstateOrig, ValueToMultiply_T, IncrementedIndexToZeroOut, Output_T).
+
+
+/* hopTrainAstate(+Astate,-WforState) */
+hopTrainAstate(Astate, WforState) :-
+    multiplyScalarDuplicate(Astate, Astate, 0, WforState).
+
+
+
+
     
