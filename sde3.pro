@@ -50,8 +50,24 @@ nextState([A|B], [C|D], Alpha, [E|F]) :-
     hop11Activation(G, Alpha, A, E),
     nextState([A|B], D, Alpha, F).
 
-/* Returns weight matrix for only one stored state, used
-as a warmup for the next function */
+/* Returns network state after n time steps */
 
-/* hopTrainAState(+Astate, -WforState) */
+/* Subtract 1 from the value to subtract */
+subtractN(ValueToSubtract, Result) :-
+    Result is ValueToSubtract - 1. 
+
+/* If N == 0, return the currentState */
+updateN(CurrState, _, _, 0, CurrState). 
+
+/* If N == 1, return nextState() */
+updateN(CurrState, WeightMatrix, Alpha, 1, ResultState) :-
+    nextState(CurrState, WeightMatrix, Alpha, ResultState).
+
+/* updateN(+CurrentState,+WeightMatrix,+Alpha,+N,-ResultState) */
+updateN(CurrState, WeightMatrix, Alpha, N, ResultState) :-
+    nextState(CurrState, WeightMatrix, Alpha, ResultState),
+    subtractN(N, UpdatedN),
+    updateN(ResultState, WeightMatrix, Alpha, UpdatedN, ResultState).
+
+
     
