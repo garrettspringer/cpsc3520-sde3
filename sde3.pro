@@ -106,12 +106,34 @@ multiplyScalarDuplicate(AstateOrig, [ValueToMultiply_H|ValueToMultiply_T], Index
     addN(IndexToZeroOut, IncrementedIndexToZeroOut),
     multiplyScalarDuplicate(AstateOrig, ValueToMultiply_T, IncrementedIndexToZeroOut, Output_T).
 
-
 /* hopTrainAstate(+Astate,-WforState) */
 hopTrainAstate(Astate, WforState) :-
     multiplyScalarDuplicate(Astate, Astate, 0, WforState).
 
+/* This returns weight matrix, given a list of stored states */
 
+/* Helper function 1 */
+/* If vecA == [] and vecB == [], return [] */
+addVecs([], [], []). 
 
+addVecs([VecA_H|VecA_T], [VecB_H|VecB_T], [Output_H|Output_T]) :-
+    Output_H is VecA_H + VecB_H,
+    addListsOfVectors(VecA_T, VecB_T, Output_T).
 
-    
+/* Helper function 2 */
+/* If listA == [] and listB == [], return [] */
+addListsOfVectors([], [], []). 
+
+addListsOfVectors([ListA_H|ListA_T], [ListB_H|ListB_T], [Output_H|Output_T]) :-
+    addVecs(ListA_H, ListB_H, Output_H),
+    addListsOfVectors(ListA_T, ListB_T, Output_T).
+
+/* if List.tl(allStates) == [], return hopTrainAstate(List.hd(allStates)) */
+hopTrain([ListofStates_H| [] ], WeightMatrix) :-
+    hopTrainAstate(ListofStates_H, WeightMatrix).
+
+/* hopTrain(+ListofStates,-WeightMatrix) */
+hopTrain([ListofStates_H|ListofStates_T], WeightMatrix) :-
+    hopTrainAstate(ListofStates_H, hopTrainaState_Output),
+    hopTrain(ListofStates_T, hopTrain_Output),
+    addListsOfVectors(hopTrainaState_Output, hopTrain_Output, WeightMatrix).
