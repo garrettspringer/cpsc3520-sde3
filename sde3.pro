@@ -25,6 +25,34 @@ netUnit([], [], 0).
 
 /* netUnit(+Inputs, +Weights, -Net) */
 netUnit([A|B], [C|D], Net) :-
-    netUnit(B, D, Cumulative).
+    netUnit(B, D, Cumulative),
     Net is A*C + Cumulative.
+
+/* Returns net activation computation for entire network
+as a vector of individual unit activations */
+
+/* If weight matrix is empty, return an empty list */
+netAll(_, [], []).
+
+/* netAll(+State, +Weights, -NetEntire) */
+netAll(State, [A|B], [C|D]) :-
+    netUnit(State, A, C),
+    netAll(State, B, D).
+
+/* Returns next state vector */
+
+/* If the weight matrix is empty, return an empty list */
+nextState([], [], _, []).
+
+/* nextState(+CurrentState, +WeightMatrix, +Alpha, -Next) */
+nextState([A|B], [C|D], Alpha, [E|F]) :-
+    netAll(A, [C|D], [G|_]),
+    hop11Activation(G, Alpha, A, E),
+    write(E),
+    nextState(B, D, Alpha, F).
+
+/* Returns weight matrix for only one stored state, used
+as a warmup for the next function */
+
+/* hopTrainAState(+Astate, -WforState) */
     
