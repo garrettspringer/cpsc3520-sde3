@@ -42,7 +42,7 @@ netAll(State, [A|B], [C|D]) :-
 /* Returns next state vector */
 
 /* If the weight matrix is empty, return an empty list */
-nextState([_], [], _, []).
+nextState([_|_], [], _, []).
 
 /* nextState(+CurrentState, +WeightMatrix, +Alpha, -Next) */
 nextState([A|B], [C|D], Alpha, [E|F]) :-
