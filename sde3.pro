@@ -42,14 +42,13 @@ netAll(State, [A|B], [C|D]) :-
 /* Returns next state vector */
 
 /* If the weight matrix is empty, return an empty list */
-nextState([], [], _, []).
+nextState([_], [], _, []).
 
 /* nextState(+CurrentState, +WeightMatrix, +Alpha, -Next) */
 nextState([A|B], [C|D], Alpha, [E|F]) :-
-    netAll(A, [C|D], [G|_]),
+    netAll([A|B], [C|D], [G|_]),
     hop11Activation(G, Alpha, A, E),
-    write(E),
-    nextState(B, D, Alpha, F).
+    nextState([A|B], D, Alpha, F).
 
 /* Returns weight matrix for only one stored state, used
 as a warmup for the next function */
