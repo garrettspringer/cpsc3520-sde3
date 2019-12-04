@@ -1,11 +1,11 @@
 /* Returns 'squashed' unit output. Implements Hopfield activation 
 function corresponding to Eqn (3) for single (-1,1) unit */
 
-/* if net activation is negative, return -1 */
+/* if net activation is negative, return 1.0 */
 hop11ActHelper(Net, Alpha, _, 1.0) :-
     Net > Alpha, !.
 
-/* if net activation is positive, return 1 */
+/* if net activation is positive, return -1.0 */
 hop11ActHelper(Net, Alpha, _, -1.0) :-
     Net < Alpha, !.
 
@@ -59,17 +59,11 @@ subtractN(ValueToSubtract, Result) :-
 /* If N == 0, return the currentState */
 updateN(CurrState, _, _, 0, CurrState). 
 
-/* If N == 1, return nextState() */
-updateN(CurrState, WeightMatrix, Alpha, 1, ResultState) :-
-    nextState(CurrState, WeightMatrix, Alpha, ResultState).
-
 /* updateN(+CurrentState,+WeightMatrix,+Alpha,+N,-ResultState) */
 updateN(CurrState, WeightMatrix, Alpha, N, ResultState) :-
-    nextState(CurrState, WeightMatrix, Alpha, ResultState),
+    nextState(CurrState, WeightMatrix, Alpha, ResultFromNextState),
     subtractN(N, UpdatedN),
-    updateN(ResultState, WeightMatrix, Alpha, UpdatedN, ResultState).
-
-
+    updateN(ResultFromNextState, WeightMatrix, Alpha, UpdatedN, ResultState).
 
 /* Returns weight matrix for only one stored state, used as a
 warmup for the next function */
@@ -77,7 +71,6 @@ warmup for the next function */
 /* Add 1 to the value to Add */
 addN(ValueToAdd, Result) :-
     Result is ValueToAdd + 1. 
-
 
 /* Helper function 1 */
 
