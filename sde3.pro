@@ -11,7 +11,7 @@ hop11ActHelper(Net, Alpha, _, -1.0) :-
 
 /* if net activation is zero, return original value */
 hop11ActHelper(Net, Alpha, Oldo, Oldo) :-
-    Net =:= Alpha, !.
+    Net = Alpha, !.
 
 /* hop11Activation(+Net, +Alpha, +Oldo, -Output) */
 hop11Activation(Net, Alpha, Oldo, Output) :-
@@ -78,10 +78,9 @@ addN(ValueToAdd, Result) :-
 multiplyScalarOriginal([], _, _, _, []).
 
 /* If IndexToZeroOut == CurrentIndex, return 0.0 :: multiplyScalarOriginal */
-multiplyScalarOriginal([_|AstateOrig_T], ValueToMultiply, IndexToZeroOut, CurrentIndex, [Output_H|Output_T]) :-
-    IndexToZeroOut =:= CurrentIndex,
+multiplyScalarOriginal([_|AstateOrig_T], ValueToMultiply, IndexToZeroOut, IndexToZeroOut, [Output_H|Output_T]) :-
     Output_H is 0.0,
-    addN(CurrentIndex, IncrementedCurrentIndex),
+    addN(IndexToZeroOut, IncrementedCurrentIndex),
     multiplyScalarOriginal(AstateOrig_T, ValueToMultiply, IndexToZeroOut, IncrementedCurrentIndex, Output_T).    
 
 multiplyScalarOriginal([AstateOrig_H|AstateOrig_T], ValueToMultiply, IndexToZeroOut, CurrentIndex, [Output_H|Output_T]) :-
@@ -92,7 +91,7 @@ multiplyScalarOriginal([AstateOrig_H|AstateOrig_T], ValueToMultiply, IndexToZero
 /* Helper function 2 */
 
 /* If valueToMultiply == [], return an empty list */
-multiplyScalarDuplicate(_, [], _, []). 
+multiplyScalarDuplicate(_, [], _, []).
 
 multiplyScalarDuplicate(AstateOrig, [ValueToMultiply_H|ValueToMultiply_T], IndexToZeroOut, [Output_H|Output_T]) :-
     multiplyScalarOriginal(AstateOrig, ValueToMultiply_H, IndexToZeroOut, 0, Output_H),
@@ -109,24 +108,24 @@ hopTrainAstate(Astate, WforState) :-
 /* If vecA == [] and vecB == [], return [] */
 addVecs([], [], []). 
 
-addVecs([VecA_H|VecA_T], [VecB_H|VecB_T], [Output_H|Output_T]) :-
-    Output_H is VecA_H + VecB_H,
-    addListsOfVectors(VecA_T, VecB_T, Output_T).
+addVecs([VecAH|VecAT], [VecBH|VecBT], [OutputH|OutputT]) :-
+    OutputH is VecAH + VecBH,
+    addVecs(VecAT, VecBT, OutputT).
 
 /* Helper function 2 */
 /* If listA == [] and listB == [], return [] */
 addListsOfVectors([], [], []). 
 
-addListsOfVectors([ListA_H|ListA_T], [ListB_H|ListB_T], [Output_H|Output_T]) :-
-    addVecs(ListA_H, ListB_H, Output_H),
-    addListsOfVectors(ListA_T, ListB_T, Output_T).
+addListsOfVectors([ListAH|ListAT], [ListBH|ListBT], [OutputH|OutputT]) :-
+    addVecs(ListAH, ListBH, OutputH),
+    addListsOfVectors(ListAT, ListBT, OutputT).
 
 /* if List.tl(allStates) == [], return hopTrainAstate(List.hd(allStates)) */
-hopTrain([ListofStates_H| [] ], WeightMatrix) :-
-    hopTrainAstate(ListofStates_H, WeightMatrix).
+hopTrain([ListofStatesHD|[]], WeightMatrix) :-
+    hopTrainAstate(ListofStatesHD, WeightMatrix).
 
 /* hopTrain(+ListofStates,-WeightMatrix) */
-hopTrain([ListofStates_H|ListofStates_T], WeightMatrix) :-
-    hopTrainAstate(ListofStates_H, hopTrainaState_Output),
-    hopTrain(ListofStates_T, hopTrain_Output),
-    addListsOfVectors(hopTrainaState_Output, hopTrain_Output, WeightMatrix).
+hopTrain([ListofStatesH|ListofStatesT], WeightMatrix) :-
+    hopTrainAstate(ListofStatesH, NewHD),
+    hopTrain(ListofStatesT, NewTL),
+    addListsOfVectors(NewHD, NewTL, WeightMatrix).
